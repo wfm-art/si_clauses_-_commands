@@ -37,7 +37,7 @@
             --tab-text: #bbb;
             --tab-active-text: #ffffff;
             --border-color: #444;
-            --light-gray-bg: #2a2a20;
+            --light-gray-bg: #2a2a2a;
         }
 
         body {
@@ -87,16 +87,17 @@
         }
         .control-button:hover { background: rgba(255,255,255,0.4); }
 
-        /* Pestañas */
+        /* Pestañas Scrollable */
         .main-tab-nav {
             display: flex;
             background-color: var(--tab-bg);
             border-bottom: 3px solid var(--dark-blue);
+            overflow-x: auto;
         }
         .main-tab-nav button {
             background-color: inherit; border: none; outline: none; cursor: pointer;
-            padding: 18px 25px; transition: 0.3s; font-size: 1.1em;
-            font-weight: bold; color: var(--tab-text); flex-grow: 1;
+            padding: 18px 20px; transition: 0.3s; font-size: 1.1em;
+            font-weight: bold; color: var(--tab-text); flex-grow: 1; white-space: nowrap;
         }
         .main-tab-nav button:hover { background-color: var(--border-color); }
         .main-tab-nav button.active { background-color: var(--tab-active-bg); color: var(--tab-active-text); }
@@ -140,9 +141,49 @@
         .fc-arrow { font-size: 1.5em; color: #555; }
         .fc-command { background: #e3f2fd; color: #1565c0; border: 2px solid #1565c0; }
 
+        /* Command Bank Styles */
+        .bank-controls { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; background: var(--light-gray-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .bank-controls select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; font-size: 1em; min-width: 200px; background: var(--container-bg); color: var(--text-color); }
+        
+        .verb-card { background: var(--container-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .verb-card:hover { transform: translateY(-3px); border-color: var(--primary-blue); }
+        .verb-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 10px; }
+        .verb-title { font-size: 1.3em; font-weight: bold; color: var(--primary-blue); text-transform: capitalize; }
+        .verb-tag { background: var(--light-gray-bg); color: #666; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; border: 1px solid var(--border-color); }
+        
+        .cmd-person { color: #888; width: 40%; font-size: 0.9em; }
+        .cmd-form { font-weight: bold; color: var(--text-color); cursor: pointer; transition: color 0.2s; }
+        .cmd-form:hover { color: var(--primary-blue); }
+        .cmd-form.neg { color: var(--red); }
+        
+        .tts-icon { cursor: pointer; margin-left: 5px; opacity: 0.6; font-size: 1em; transition: transform 0.2s, opacity 0.2s; }
+        .tts-icon:hover { opacity: 1; transform: scale(1.2); }
+
+        .btn-explain { background: var(--yellow); color: #333; border: none; padding: 3px 10px; border-radius: 15px; font-size: 0.8em; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        .btn-explain:hover { background: #e0a800; }
+
+        /* EXPLANATION MODAL */
+        #explain-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 1000; display: none;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--container-bg); padding: 30px; border-radius: 15px;
+            max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
+            border: 2px solid var(--primary-blue);
+            color: var(--text-color);
+        }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.5em; cursor: pointer; color: #666; }
+        .explain-block { margin-bottom: 20px; border-left: 4px solid var(--border-color); padding-left: 15px; }
+        .explain-block h4 { margin: 0 0 5px 0; color: var(--primary-blue); }
+        .explain-label { font-weight: bold; color: #666; font-size: 0.9em; }
+        .explain-ex { font-style: italic; background: var(--light-gray-bg); padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+
         /* Tablas */
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.95em; }
+        th, td { border: 1px solid var(--border-color); padding: 10px; text-align: left; }
         th { background-color: var(--light-gray-bg); }
 
         /* Práctica */
@@ -172,33 +213,24 @@
         .draggable.dragging { opacity: 0.5; border: 2px dashed var(--primary-blue); }
         #items-to-sort { margin-top: 20px; padding: 10px; background: var(--tab-bg); border-radius: 8px; min-height: 60px; }
 
-        /* --- FLASHCARDS (CSS CORREGIDO) --- */
+        /* Flashcards - CORREGIDO (Horizontal) */
         .flashcard-app { display: flex; flex-direction: column; align-items: center; }
         .flashcard-container { width: 90%; max-width: 500px; height: 300px; perspective: 1000px; margin-bottom: 20px; }
         .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 10px; }
         .flashcard.is-flipped { transform: rotateY(180deg); }
         
         .card-face { 
-            position: absolute; 
-            width: 100%; 
-            height: 100%; 
+            position: absolute; width: 100%; height: 100%; 
             backface-visibility: hidden; 
-            
-            /* FLEXBOX CENTRADO ESTÁNDAR */
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
             text-align: center; 
-            
-            padding: 25px; 
+            padding: 20px; 
             border-radius: 10px; 
             box-sizing: border-box; 
-            
-            /* TEXTO NORMAL */
+            /* TEXTO NORMAL (NO VERTICAL) */
             font-size: 1.4em;
             line-height: 1.4;
-            white-space: normal; /* Asegura que el texto baje de línea */
+            white-space: normal;
             overflow: hidden;
         }
         
@@ -210,8 +242,18 @@
         .flashcard-nav { display: flex; justify-content: center; gap: 20px; }
         .flashcard-nav button { font-size: 1em; font-weight: bold; }
 
-        .tts-icon { font-size: 1.1em; cursor: pointer; margin-left: 8px; transition: transform 0.2s; }
-        .tts-icon:hover { transform: scale(1.2); }
+        /* Command Formation Box */
+        .command-formation-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        body.dark-mode .command-formation-box { background: #102a44; border-color: #0d47a1; }
+        .command-example { font-size: 1.2em; margin: 10px 0; }
+        .cmd-highlight { color: #d32f2f; font-weight: bold; text-decoration: underline; }
 
     </style>
 </head>
@@ -220,7 +262,7 @@
     <div class="container">
         <header>
             <div class="header-controls">
-                <button class="control-button" onclick="toggleLang()">EN / ES</button>
+                <button class="control-button" onclick="toggleLang()" id="btn-lang">EN / ES</button>
                 <button class="control-button" onclick="toggleTheme()">☀️/🌙</button>
             </div>
             <h1 data-lang-key="header_title">Si Clauses + Commands</h1>
@@ -230,6 +272,7 @@
         <nav class="main-tab-nav">
             <button class="main-tab-link active" onclick="changeMainTab(event, 'tab-metaphor')" data-lang-key="tab_1">🚦 The Concept</button>
             <button class="main-tab-link" onclick="changeMainTab(event, 'tab-formacion')" data-lang-key="tab_2">✍️ The Formula</button>
+            <button class="main-tab-link" onclick="changeMainTab(event, 'tab-bank')" data-lang-key="tab_bank">📚 Command Bank</button>
             <button class="main-tab-link" onclick="changeMainTab(event, 'tab-practica')" data-lang-key="tab_3">🧠 Interactive Practice</button>
             <button class="main-tab-link" onclick="changeMainTab(event, 'tab-flashcards')" data-lang-key="tab_4">📇 Flashcards</button>
         </nav>
@@ -272,40 +315,77 @@
             <div id="tab-formacion" class="main-tab-content">
                 <h2 data-lang-key="form_title">The Structure</h2>
                 
-                <div class="comparison-grid">
-                    <div class="tense-box" style="border-top: 4px solid var(--green);">
-                        <h3>1. The Clause (Si + Present)</h3>
-                        <p>Use the <strong>Present Indicative</strong>.</p>
-                        <ul style="text-align:left;">
-                            <li>Si <strong>tienes</strong> tiempo...</li>
-                            <li>Si <strong>vas</strong> al cine...</li>
-                            <li>Si <strong>estás</strong> enfermo...</li>
-                        </ul>
-                    </div>
-                    <div class="tense-box" style="border-top: 4px solid var(--primary-blue);">
-                        <h3>2. The Command (Imperative)</h3>
-                        <p>Use the <strong>Imperative (Mandato)</strong>.</p>
-                        <ul style="text-align:left;">
-                            <li>...<strong>llámame</strong>.</li>
-                            <li>...<strong>compra</strong> palomitas.</li>
-                            <li>...<strong>ve</strong> al médico.</li>
-                        </ul>
+                <div class="command-formation-box">
+                    <h3 data-lang-key="form_rule_title">How to Form Regular Commands (Tú)</h3>
+                    <p data-lang-key="form_rule_desc">It's easy! Use the <strong>3rd Person Singular (Él/Ella)</strong> form of the Present Tense.</p>
+                    <div class="comparison-grid">
+                        <div class="tense-box" onclick="speak('Habla')">
+                            <h4 data-lang-key="ar_verbs">-AR Verbs</h4>
+                            <p>Hablar &rarr; Él <strong>habla</strong></p>
+                            <p class="command-example">¡<span class="cmd-highlight">Habla</span> más alto!</p>
+                        </div>
+                        <div class="tense-box" onclick="speak('Come')">
+                            <h4 data-lang-key="er_ir_verbs">-ER / -IR Verbs</h4>
+                            <p>Comer &rarr; Ella <strong>come</strong></p>
+                            <p class="command-example">¡<span class="cmd-highlight">Come</span> tu comida!</p>
+                        </div>
                     </div>
                 </div>
 
                 <h3>Key Irregular Commands (Tú)</h3>
-                <p>Memorize these short forms:</p>
+                <p>Memorize these short forms (Vin Diesel has ten weapons):</p>
                 <table>
                     <tr><th>Infinitive</th><th>Command (Tú)</th></tr>
-                    <tr><td>Venir</td><td><strong>Ven</strong></td></tr>
-                    <tr><td>Decir</td><td><strong>Di</strong></td></tr>
-                    <tr><td>Salir</td><td><strong>Sal</strong></td></tr>
-                    <tr><td>Hacer</td><td><strong>Haz</strong></td></tr>
-                    <tr><td>Tener</td><td><strong>Ten</strong></td></tr>
-                    <tr><td>Ir</td><td><strong>Ve</strong></td></tr>
-                    <tr><td>Poner</td><td><strong>Pon</strong></td></tr>
-                    <tr><td>Ser</td><td><strong>Sé</strong></td></tr>
+                    <tr onclick="speak('Ven')"><td>Venir</td><td><strong>Ven</strong></td></tr>
+                    <tr onclick="speak('Di')"><td>Decir</td><td><strong>Di</strong></td></tr>
+                    <tr onclick="speak('Sal')"><td>Salir</td><td><strong>Sal</strong></td></tr>
+                    <tr onclick="speak('Haz')"><td>Hacer</td><td><strong>Haz</strong></td></tr>
+                    <tr onclick="speak('Ten')"><td>Tener</td><td><strong>Ten</strong></td></tr>
+                    <tr onclick="speak('Ve')"><td>Ir</td><td><strong>Ve</strong></td></tr>
+                    <tr onclick="speak('Pon')"><td>Poner</td><td><strong>Pon</strong></td></tr>
+                    <tr onclick="speak('Sé')"><td>Ser</td><td><strong>Sé</strong></td></tr>
                 </table>
+            </div>
+
+            <div id="tab-bank" class="main-tab-content">
+                <h2 data-lang-key="bank_title">Command Bank</h2>
+                <p data-lang-key="bank_desc">Reference for regular and irregular commands.</p>
+                
+                <div class="bank-controls">
+                    <label>Filter:</label>
+                    <select id="cmdVerbSelect">
+                        <option value="all">All Verbs</option>
+                        </select>
+                </div>
+
+                <div id="cmdBankContainer">
+                    </div>
+            </div>
+
+            <div id="explain-modal">
+                <div class="modal-content">
+                    <span class="modal-close" onclick="closeModal()">&times;</span>
+                    <h2 id="modal-title">Verb Title</h2>
+                    <p id="modal-trans" style="font-style:italic; color:#666; margin-bottom:20px;">To do something</p>
+                    
+                    <div class="explain-block" style="border-left: 4px solid var(--green); padding-left:10px; margin-bottom:15px;">
+                        <h4>✅ Affirmative Command (Tú)</h4>
+                        <p class="explain-label">Form: <span id="modal-aff-form" style="color:black; font-size:1.2em; font-weight:bold;">-</span></p>
+                        <p class="explain-label">Translation: <span id="modal-aff-trans" style="font-weight:normal;">-</span></p>
+                        <span class="explain-ex" id="modal-aff-ex">-</span>
+                    </div>
+                    
+                    <div class="explain-block" style="border-left: 4px solid var(--red); padding-left:10px;">
+                        <h4>❌ Negative Command (Tú)</h4>
+                        <p class="explain-label">Form: <span id="modal-neg-form" style="color:black; font-size:1.2em; font-weight:bold;">-</span></p>
+                        <p class="explain-label">Translation: <span id="modal-neg-trans" style="font-weight:normal;">-</span></p>
+                        <span class="explain-ex" id="modal-neg-ex">-</span>
+                    </div>
+
+                    <div style="margin-top:20px; padding:10px; background:#e3f2fd; border-radius:5px; font-size:0.9em; color:#333;">
+                        <strong>Usage:</strong> This is used to give informal orders to one person.
+                    </div>
+                </div>
             </div>
 
             <div id="tab-practica" class="main-tab-content">
@@ -335,18 +415,12 @@
                         <button id="generate-drag" class="refresh-btn button-secondary" data-lang-key="btn_new_match">New Matcher</button>
                     </div>
                     <p data-lang-key="drag_desc">Match the <strong>Condition</strong> (Green) with the logical <strong>Command</strong> (Blue).</p>
-                    
                     <div id="items-to-sort">
                         <div id="drag-items-pool"></div>
                     </div>
-                    
                     <div class="sorter-container">
-                        <div class="dropzone" id="zone-condition">
-                            <h4 style="color: var(--green);">If... (Condition)</h4>
-                        </div>
-                        <div class="dropzone" id="zone-command">
-                            <h4 style="color: var(--primary-blue);">Then... (Command)</h4>
-                        </div>
+                        <div class="dropzone" id="zone-condition"><h4 style="color: var(--green);">If... (Condition)</h4></div>
+                        <div class="dropzone" id="zone-command"><h4 style="color: var(--primary-blue);">Then... (Command)</h4></div>
                     </div>
                     <button id="check-drag-btn" class="button-primary" style="margin-top: 20px;" data-lang-key="btn_check_match">Check Matches</button>
                     <div id="drag-feedback" class="feedback"></div>
@@ -382,6 +456,7 @@ const uiData = {
         header_subtitle: "Giving Advice & Instructions",
         tab_1: "🚦 The Concept",
         tab_2: "✍️ The Formula",
+        tab_bank: "📚 Command Bank",
         tab_3: "🧠 Interactive Practice",
         tab_4: "📇 Flashcards",
         metaphor_title: "Condition & Reaction",
@@ -393,6 +468,12 @@ const uiData = {
         viz_title: "Interactive Formula",
         viz_desc: "Click the condition to see the command.",
         form_title: "The Structure",
+        form_rule_title: "How to Form Regular Commands (Tú)",
+        form_rule_desc: "It's easy! Use the <strong>3rd Person Singular (Él/Ella)</strong> form of the Present Tense.",
+        ar_verbs: "-AR Verbs",
+        er_ir_verbs: "-ER / -IR Verbs",
+        bank_title: "Command Bank",
+        bank_desc: "Reference for regular and irregular commands.",
         practice_main_title: "Interactive Practice",
         quiz_title: "Part 1: Quick Quiz",
         btn_new: "New Quiz",
@@ -413,6 +494,7 @@ const uiData = {
         header_subtitle: "Dar Consejos e Instrucciones",
         tab_1: "🚦 El Concepto",
         tab_2: "✍️ La Fórmula",
+        tab_bank: "📚 Banco de Mandatos",
         tab_3: "🧠 Práctica Interactiva",
         tab_4: "📇 Flashcards",
         metaphor_title: "Condición y Reacción",
@@ -424,14 +506,20 @@ const uiData = {
         viz_title: "Fórmula Interactiva",
         viz_desc: "Haz clic en la condición para ver el mandato.",
         form_title: "La Estructura",
+        form_rule_title: "Cómo Formar Mandatos Regulares (Tú)",
+        form_rule_desc: "¡Es fácil! Usa la forma de <strong>3ª Persona Singular (Él/Ella)</strong> del Presente.",
+        ar_verbs: "Verbos -AR",
+        er_ir_verbs: "Verbos -ER / -IR",
+        bank_title: "Banco de Mandatos",
+        bank_desc: "Referencia de mandatos regulares e irregulares.",
         practice_main_title: "Práctica Interactiva",
-        quiz_title: "Parte 1: Quiz Rápido",
+        quiz_title: "Part 1: Quiz Rápido",
         btn_new: "Nuevo Quiz",
         quiz_note: "Nota: El audio lee infinitivos para no revelar la respuesta.",
-        story_title: "Parte 2: Historia de Consejos",
+        story_title: "Part 2: Historia de Consejos",
         btn_new_story: "Nueva Historia",
         btn_check: "Verificar Historia",
-        drag_title: "Parte 3: Parejas Lógicas",
+        drag_title: "Part 3: Parejas Lógicas",
         btn_new_match: "Nuevo Juego",
         drag_desc: "Une la Condición (Verde) con el Mandato lógico (Azul).",
         btn_check_match: "Verificar Parejas",
@@ -442,6 +530,28 @@ const uiData = {
 };
 
 let currentLang = 'en';
+
+// --- COMMAND DATABASE (With orthographic changes included for automatic negative commands) ---
+const commandDatabase = [
+    { verb: "hablar", tag: "Regular -AR", auto: true, trans: "To speak", ex_aff: "¡Habla más alto!", ex_neg: "¡No hables en clase!", trans_aff: "Speak louder!", trans_neg: "Don't speak in class!" },
+    { verb: "comer", tag: "Regular -ER", auto: true, trans: "To eat", ex_aff: "¡Come tus verduras!", ex_neg: "¡No comas eso!", trans_aff: "Eat your vegetables!", trans_neg: "Don't eat that!" },
+    { verb: "vivir", tag: "Regular -IR", auto: true, trans: "To live", ex_aff: "¡Vive la vida!", ex_neg: "¡No vivas con miedo!", trans_aff: "Live life!", trans_neg: "Don't live in fear!" },
+    { verb: "escuchar", tag: "Regular -AR", auto: true, trans: "To listen", ex_aff: "¡Escucha al profesor!", ex_neg: "¡No escuches música ahora!", trans_aff: "Listen to the teacher!", trans_neg: "Don't listen to music now!" },
+    // Irregulars
+    { verb: "venir", tag: "Irregular", auto: false, forms: ["ven", "no vengas", "venga", "vengan", "vengamos"], trans: "To come", ex_aff: "¡Ven aquí!", ex_neg: "¡No vengas tarde!", trans_aff: "Come here!", trans_neg: "Don't come late!" },
+    { verb: "decir", tag: "Irregular", auto: false, forms: ["di", "no digas", "diga", "digan", "digamos"], trans: "To say/tell", ex_aff: "¡Di la verdad!", ex_neg: "¡No digas mentiras!", trans_aff: "Tell the truth!", trans_neg: "Don't tell lies!" },
+    { verb: "salir", tag: "Irregular", auto: false, forms: ["sal", "no salgas", "salga", "salgan", "salgamos"], trans: "To leave/go out", ex_aff: "¡Sal de ahí!", ex_neg: "¡No salgas sin chaqueta!", trans_aff: "Get out of there!", trans_neg: "Don't go out without a jacket!" },
+    { verb: "hacer", tag: "Irregular", auto: false, forms: ["haz", "no hagas", "haga", "hagan", "hagamos"], trans: "To do/make", ex_aff: "¡Haz tu tarea!", ex_neg: "¡No hagas ruido!", trans_aff: "Do your homework!", trans_neg: "Don't make noise!" },
+    { verb: "tener", tag: "Irregular", auto: false, forms: ["ten", "no tengas", "tenga", "tengan", "tengamos"], trans: "To have", ex_aff: "¡Ten paciencia!", ex_neg: "¡No tengas miedo!", trans_aff: "Have patience!", trans_neg: "Don't be afraid!" },
+    { verb: "ir", tag: "Irregular", auto: false, forms: ["ve", "no vayas", "vaya", "vayan", "vayamos"], trans: "To go", ex_aff: "¡Ve a la escuela!", ex_neg: "¡No vayas solo!", trans_aff: "Go to school!", trans_neg: "Don't go alone!" },
+    { verb: "poner", tag: "Irregular", auto: false, forms: ["pon", "no pongas", "ponga", "pongamos"], trans: "To put", ex_aff: "¡Pon la mesa!", ex_neg: "¡No pongas los pies ahí!", trans_aff: "Set the table!", trans_neg: "Don't put your feet there!" },
+    { verb: "ser", tag: "Irregular", auto: false, forms: ["sé", "no seas", "sea", "sean", "seamos"], trans: "To be", ex_aff: "¡Sé amable!", ex_neg: "¡No seas grosero!", trans_aff: "Be kind!", trans_neg: "Don't be rude!" },
+    // Orthographic
+    { verb: "tocar", tag: "Orthographic (-car)", auto: false, forms: ["toca", "no toques", "toque", "toquen", "toquemos"], trans: "To touch", ex_aff: "¡Toca la puerta!", ex_neg: "¡No toques eso!", trans_aff: "Touch the door!", trans_neg: "Don't touch that!" },
+    { verb: "llegar", tag: "Orthographic (-gar)", auto: false, forms: ["llega", "no llegues", "llegue", "lleguen", "lleguemos"], trans: "To arrive", ex_aff: "¡Llega temprano!", ex_neg: "¡No llegues tarde!", trans_aff: "Arrive early!", trans_neg: "Don't arrive late!" },
+    { verb: "empezar", tag: "Orthographic (-zar)", auto: false, forms: ["empieza", "no empieces", "empiece", "empiecen", "empecemos"], trans: "To start", ex_aff: "¡Empieza ahora!", ex_neg: "¡No empieces la película!", trans_aff: "Start now!", trans_neg: "Don't start the movie!" },
+    { verb: "empacar", tag: "Orthographic (-car)", auto: false, forms: ["empaca", "no empaques", "empaque", "empaquen", "empaquemos"], trans: "To pack", ex_aff: "¡Empaca tu maleta!", ex_neg: "¡No empaques todo eso!", trans_aff: "Pack your suitcase!", trans_neg: "Don't pack all that!" }
+];
 
 // 20 Flashcards
 const flashcardData = [
@@ -626,6 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tabId === 'tab-practica' && !document.getElementById('quiz-container').hasChildNodes()) {
             generateQuiz(); generateStory(); generateDragDrop();
         }
+        if (tabId === 'tab-bank') { renderBank(); }
     }
 
     // 2. VISUALIZER
@@ -648,8 +759,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedQuestions.forEach((q, i) => {
             const qId = `q_${i}`;
             // Clean audio text
-            const cleanQ = q.q.replace(/[()]/g, "");
-            const tts = `<span class="tts-icon" data-tts="${cleanQ}">🔊</span>`;
+            const cleanQ = q.q.replace(/[()]/g, "").replace(/ /g, ', ');
+            const tts = `<span class="tts-icon" onclick="speak('${cleanQ}')">🔊</span>`;
             
             let html = `<div class="quiz-question" id="${qId}">
                 <p>${i+1}. ${q.q} ${tts}</p>`;
@@ -713,14 +824,24 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.dropzone .draggable').forEach(e => e.remove());
         document.querySelectorAll('.drag-explanation').forEach(e => e.remove());
 
-        // Pick 8 random pairs (well, mixed)
-        currentDragItems = [...dragDropBank].sort(() => 0.5 - Math.random()).slice(0, 8);
+        // Pick 6 random pairs (12 items total)
+        const uniquePairs = new Map();
+        while (uniquePairs.size < 6) { 
+            const randomIndex = Math.floor(Math.random() * (dragDropBank.length / 2)) * 2;
+            const condition = dragDropBank[randomIndex];
+            const command = dragDropBank[randomIndex + 1];
+            if (condition && command) {
+                uniquePairs.set(condition.text, condition);
+                uniquePairs.set(command.text, command);
+            }
+        }
+        currentDragItems = Array.from(uniquePairs.values()).sort(() => 0.5 - Math.random());
         
         currentDragItems.forEach(item => {
             const el = document.createElement('div');
             el.className = 'draggable';
             el.draggable = true;
-            const ttsHtml = `&nbsp;<span class="tts-icon" data-tts="${item.text.replace(/<[^>]*>?/gm, '')}">🔊</span>`;
+            const ttsHtml = `&nbsp;<span class="tts-icon" onclick="event.stopPropagation(); speak('${item.text.replace(/<[^>]*>?/gm, '')}')">🔊</span>`;
             el.innerHTML = `${item.text} ${ttsHtml}`;
             el.dataset.type = item.type;
             
@@ -744,6 +865,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dragging = document.querySelector('.dragging');
                 if(dragging) zone.appendChild(dragging);
             });
+            zone.addEventListener('touchenter', () => zone.classList.add('drag-over'), false);
+            zone.addEventListener('touchleave', () => zone.classList.remove('drag-over'), false);
         });
     }
 
@@ -751,38 +874,74 @@ document.addEventListener('DOMContentLoaded', () => {
     let tDrag = null;
     function touchStart(e) {
         if(e.target.classList.contains('tts-icon')) return;
-        tDrag = e.target.closest('.draggable');
-        if(!tDrag) return;
-        setTimeout(() => tDrag.classList.add('dragging'), 100);
+        let originalTarget = e.target.closest('.draggable');
+        if(!originalTarget) return;
+        
+        // Prepare for dragging
+        const rect = originalTarget.getBoundingClientRect();
+        const clone = originalTarget.cloneNode(true);
+        originalTarget.style.opacity = '0.0'; // Hide original
+        
+        clone.style.position = 'fixed';
+        clone.style.zIndex = 1000;
+        clone.style.width = rect.width + 'px';
+        clone.style.height = rect.height + 'px';
+        clone.style.left = rect.left + 'px';
+        clone.style.top = rect.top + 'px';
+        clone.classList.add('dragging');
+        clone.id = 'touch-drag-clone';
+        document.body.appendChild(clone);
+        
+        tDrag = { original: originalTarget, clone: clone };
+
         document.addEventListener('touchmove', touchMove, {passive: false});
         document.addEventListener('touchend', touchEnd);
     }
+    
     function touchMove(e) {
-        if(!tDrag || !tDrag.classList.contains('dragging')) return;
+        if(!tDrag || !tDrag.clone) return;
         e.preventDefault();
         const t = e.touches[0];
-        tDrag.style.position = 'fixed';
-        tDrag.style.zIndex = 1000;
-        tDrag.style.left = (t.clientX - tDrag.offsetWidth/2) + 'px';
-        tDrag.style.top = (t.clientY - tDrag.offsetHeight/2) + 'px';
-    }
-    function touchEnd(e) {
-        if(!tDrag) return;
-        const t = e.changedTouches[0];
-        tDrag.style.position = ''; tDrag.style.zIndex = ''; tDrag.style.left = ''; tDrag.style.top = '';
-        tDrag.classList.remove('dragging');
+        tDrag.clone.style.left = (t.clientX - tDrag.clone.offsetWidth/2) + 'px';
+        tDrag.clone.style.top = (t.clientY - tDrag.clone.offsetHeight/2) + 'px';
         
+        // Highlight dropzones
+        document.querySelectorAll('.dropzone').forEach(zone => zone.classList.remove('drag-over'));
         const elem = document.elementFromPoint(t.clientX, t.clientY);
         const zone = elem ? elem.closest('.dropzone') : null;
-        if(zone) zone.appendChild(tDrag);
+        if(zone) zone.classList.add('drag-over');
+    }
+    
+    function touchEnd(e) {
+        if(!tDrag) return;
+
+        const t = e.changedTouches[0];
+        const elem = document.elementFromPoint(t.clientX, t.clientY);
+        const zone = elem ? elem.closest('.dropzone') : null;
+        
+        if(zone) {
+            // Move original to new zone
+            tDrag.original.style.opacity = '1';
+            zone.appendChild(tDrag.original);
+        } else {
+            // Move original back to pool if not dropped in a zone
+            tDrag.original.style.opacity = '1';
+            dragPool.appendChild(tDrag.original);
+        }
+
+        // Cleanup clone
+        tDrag.clone.remove();
         
         document.removeEventListener('touchmove', touchMove);
         document.removeEventListener('touchend', touchEnd);
+        document.querySelectorAll('.dropzone').forEach(zone => zone.classList.remove('drag-over'));
         tDrag = null;
     }
 
+
     function checkDrag() {
         let correct = 0;
+        let totalItems = 0;
         const zones = {
             'zone-condition': 'condition',
             'zone-command': 'command'
@@ -791,6 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const [zoneId, type] of Object.entries(zones)) {
             const zone = document.getElementById(zoneId);
             zone.querySelectorAll('.draggable').forEach(item => {
+                totalItems++;
                 if(item.dataset.type === type) {
                     item.style.backgroundColor = '#d4edda'; correct++;
                 } else {
@@ -798,16 +958,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-        document.getElementById('drag-feedback').textContent = `Correct: ${correct}`;
+        document.getElementById('drag-feedback').textContent = `Correct: ${correct} out of ${totalItems}.`;
     }
 
     // 6. FLASHCARDS
     let cIdx = 0;
     function loadCard() {
         const d = flashcardData[cIdx];
-        const tts = `&nbsp;<span class="tts-icon" data-tts="${d.es.replace(/<[^>]*>?/gm, '')}">🔊</span>`;
+        const tts = `&nbsp;<span class="tts-icon" onclick="speak('${d.es.replace(/<[^>]*>?/gm, '')}')">🔊</span>`;
         document.getElementById('card-front').innerHTML = d.en;
-        document.getElementById('card-back').innerHTML = `${d.es} ${tts}<br><br><small>${d.explanation}</small>`;
+        document.getElementById('card-back').innerHTML = `${d.es} ${tts}<p>${d.explanation}</p>`;
         document.getElementById('flashcard').classList.remove('is-flipped');
     }
     window.flipCard = () => document.getElementById('flashcard').classList.toggle('is-flipped');
@@ -817,13 +977,115 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('flashcard').addEventListener('click', function(e) {
         if(e.target.classList.contains('tts-icon')) {
             e.stopPropagation();
-            speak(e.target.dataset.tts);
         } else {
             flipCard();
         }
     });
 
-    // UI Functions
+    // 7. COMMAND BANK GENERATOR
+    function conjugateCmdRegular(verb) {
+        const stem = verb.slice(0, -2);
+        const end = verb.slice(-2);
+        // Forms: Tú(+), Tú(-), Ud, Uds, Nos
+        let tuNeg = "";
+        
+        if (end === "ar") {
+            tuNeg = stem+"es";
+        } else if (end === "er" || end === "ir") {
+            tuNeg = stem+"as";
+        }
+        
+        // Orthographic changes (just for regular conjugation logic)
+        if (verb.endsWith("car")) { tuNeg = tuNeg.replace("ces", "ques"); } // -car
+        if (verb.endsWith("gar")) { tuNeg = tuNeg.replace("ges", "gues"); } // -gar
+        if (verb.endsWith("zar")) { tuNeg = tuNeg.replace("zas", "ces"); } // -zar (e.g. empezar -> empieces)
+
+        if (end === "ar") return [stem+"a", "no "+tuNeg, stem+"e", stem+"en", stem+"emos"];
+        if (end === "er") return [stem+"e", "no "+tuNeg, stem+"a", stem+"an", stem+"amos"];
+        if (end === "ir") return [stem+"e", "no "+tuNeg, stem+"a", stem+"an", stem+"amos"]; 
+        return ["-","-","-","-","-"];
+    }
+    
+    // CORRECCIÓN CLAVE: Función showExplanation actualizada
+    // Ahora recibe el índice del array y toma el objeto directamente.
+    window.showExplanation = function(index) {
+        const verbData = commandDatabase[index];
+        if (!verbData) return;
+
+        const modal = document.getElementById('explain-modal');
+        
+        // Traducciones específicas
+        const trans_aff = verbData.trans_aff || "Do it!";
+        const trans_neg = verbData.trans_neg || "Don't do it!";
+        const trans_infinitive = verbData.trans || "To do the action";
+
+        // Ejemplos por defecto si no se proporcionan
+        const affForm = verbData.forms[0] || '';
+        const negForm = verbData.forms[1] || '';
+        const ex_aff = verbData.ex_aff || `¡${affForm.charAt(0).toUpperCase() + affForm.slice(1)} ahora!`;
+        const ex_neg = verbData.ex_neg || `¡${negForm.charAt(0).toUpperCase() + negForm.slice(1)} eso!`;
+
+        document.getElementById('modal-title').textContent = verbData.verb.charAt(0).toUpperCase() + verbData.verb.slice(1);
+        document.getElementById('modal-trans').textContent = trans_infinitive;
+        
+        document.getElementById('modal-aff-form').textContent = verbData.forms[0];
+        document.getElementById('modal-aff-trans').textContent = trans_aff; // Traducción Correcta
+        document.getElementById('modal-aff-ex').innerHTML = `Ex: "${ex_aff}" <span class="tts-icon" onclick="speak('${ex_aff}')">🔊</span>`;
+        
+        document.getElementById('modal-neg-form').textContent = verbData.forms[1];
+        document.getElementById('modal-neg-trans').textContent = trans_neg; // Traducción Correcta
+        document.getElementById('modal-neg-ex').innerHTML = `Ex: "${ex_neg}" <span class="tts-icon" onclick="speak('${ex_neg}')">🔊</span>`;
+        
+        modal.style.display = 'flex';
+    }
+
+    window.closeModal = function() {
+        document.getElementById('explain-modal').style.display = 'none';
+    }
+
+    function renderBank() {
+        const container = document.getElementById('cmdBankContainer');
+        const select = document.getElementById('cmdVerbSelect');
+        if(container.innerHTML.trim() !== "") return; // Already rendered
+
+        commandDatabase.forEach((item, index) => {
+            const opt = document.createElement('option');
+            opt.value = item.verb; opt.textContent = item.verb;
+            select.appendChild(opt);
+            
+            // Normalize Forms
+            if(item.auto) item.forms = conjugateCmdRegular(item.verb);
+            
+            // Modificación CRUCIAL: Usamos el índice para llamar a showExplanation
+            const card = `
+            <div class="verb-card" data-verb="${item.verb}">
+                <div class="verb-header">
+                    <span class="verb-title">${item.verb}</span>
+                    <div>
+                        <span class="verb-tag">${item.tag}</span>
+                        <button class="btn-explain" onclick="showExplanation(${index})">💡 Explain</button>
+                    </div>
+                </div>
+                <table>
+                    <tr onclick="speak('${item.forms[0]}')"><td class="cmd-person">Tú (Afirm)</td><td class="cmd-form">${item.forms[0]} 🔊</td></tr>
+                    <tr onclick="speak('${item.forms[1]}')"><td class="cmd-person">Tú (Neg)</td><td class="cmd-form neg">${item.forms[1]} 🔊</td></tr>
+                    <tr onclick="speak('${item.forms[2]}')"><td class="cmd-person">Usted</td><td class="cmd-form">${item.forms[2]} 🔊</td></tr>
+                    <tr onclick="speak('${item.forms[3]}')"><td class="cmd-person">Ustedes</td><td class="cmd-form">${item.forms[3]} 🔊</td></tr>
+                    <tr onclick="speak('${item.forms[4]}')"><td class="cmd-person">Nosotros</td><td class="cmd-form">${item.forms[4]} 🔊</td></tr>
+                </table>
+            </div>`;
+            container.innerHTML += card;
+        });
+
+        select.addEventListener('change', (e) => {
+            const val = e.target.value;
+            document.querySelectorAll('.verb-card').forEach(c => {
+                c.style.display = (val === 'all' || c.dataset.verb === val) ? '' : 'none';
+            });
+        });
+    }
+
+    // Utils
     window.toggleLang = function() {
         currentLang = currentLang === 'en' ? 'es' : 'en';
         document.querySelectorAll('[data-lang-key]').forEach(el => {
@@ -834,23 +1096,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.toggleTheme = () => document.body.classList.toggle('dark-mode');
 
-    // AUDIO ENGINE
-    function speak(txt) {
+    // AUDIO ENGINE (Global)
+    window.speak = function(txt) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(txt);
         u.lang = 'es-ES';
+        
         const voices = window.speechSynthesis.getVoices();
         const v = voices.find(voice => voice.name.includes('Google') && voice.lang.includes('es')) || 
                   voices.find(voice => (voice.name.includes('Monica') || voice.name.includes('Paulina')) && voice.lang.includes('es')) ||
                   voices.find(voice => voice.lang.includes('es'));
         if(v) u.voice = v;
+        
         window.speechSynthesis.speak(u);
     }
     
-    // Global TTS listener
+    // Global TTS listener to catch clicks on icons
     document.body.addEventListener('click', function(e) {
         if(e.target.classList.contains('tts-icon') && !e.target.closest('#flashcard')) {
-            speak(e.target.dataset.tts);
+            // Logic handled by inline onclick, but here for completeness
         }
     });
 
