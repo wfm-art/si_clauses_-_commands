@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Si Clauses + Commands</title>
     
     <style>
@@ -37,7 +37,7 @@
             --tab-text: #bbb;
             --tab-active-text: #ffffff;
             --border-color: #444;
-            --light-gray-bg: #2a2a2a;
+            --light-gray-bg: #2a2a20;
         }
 
         body {
@@ -48,6 +48,8 @@
             margin: 0;
             padding: 20px;
             transition: background-color 0.3s, color 0.3s;
+            /* Previene el rebote en iPad */
+            overscroll-behavior: none;
         }
         .container {
             max-width: 950px;
@@ -116,17 +118,6 @@
         
         .icon-wrapper { font-size: 4em; margin-bottom: 10px; display:block; }
         
-        /* Video */
-        .video-placeholder {
-            background: var(--light-gray-bg); border: 2px dashed var(--border-color);
-            border-radius: 8px; padding: 20px; text-align: center; margin-top: 20px;
-        }
-        .video-container {
-            position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
-            overflow: hidden; border-radius: 8px; background: #000; margin-top: 20px; border: 1px solid var(--border-color);
-        }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-
         /* Visualizador */
         .formula-visualizer {
             background-color: var(--light-gray-bg); border: 1px solid var(--border-color);
@@ -165,17 +156,18 @@
         /* EXPLANATION MODAL */
         #explain-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 1000; display: none;
+            background: rgba(0,0,0,0.6); z-index: 2000; display: none;
             justify-content: center; align-items: center;
         }
         .modal-content {
             background: var(--container-bg); padding: 30px; border-radius: 15px;
             max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); position: relative;
             border: 2px solid var(--primary-blue);
             color: var(--text-color);
         }
-        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.5em; cursor: pointer; color: #666; }
+        .modal-close { position: absolute; top: 10px; right: 20px; font-size: 2.5em; font-weight: bold; cursor: pointer; color: #666; line-height: 0.8; transition: color 0.2s; }
+        .modal-close:hover { color: var(--red); }
         .explain-block { margin-bottom: 20px; border-left: 4px solid var(--border-color); padding-left: 15px; }
         .explain-block h4 { margin: 0 0 5px 0; color: var(--primary-blue); }
         .explain-label { font-weight: bold; color: #666; font-size: 0.9em; }
@@ -205,15 +197,28 @@
         .interactive-story select { padding: 2px 5px; border: 1px solid #ccc; border-radius: 4px; }
         body.dark-mode .interactive-story { background: #2c2c20; border-color: #444; color: #eee; }
 
-        /* Drag Drop */
+        /* Drag Drop (iPad Fix) */
         .sorter-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .dropzone { min-height: 200px; background: var(--light-gray-bg); border: 3px dashed var(--border-color); border-radius: 8px; padding: 10px; }
-        .dropzone h4 { text-align: center; margin-top: 0; color: var(--dark-blue); }
-        .draggable { background-color: var(--container-bg); border: 1px solid #ccc; padding: 10px; margin-bottom: 8px; border-radius: 5px; cursor: grab; display: inline-block; margin-right: 5px; }
+        .dropzone { min-height: 200px; background: var(--light-gray-bg); border: 3px dashed var(--border-color); border-radius: 8px; padding: 10px; position: relative; }
+        .dropzone.drag-over { background-color: #e9ecef; border-color: var(--primary-blue); }
+        .dropzone h4 { text-align: center; margin-top: 0; color: var(--dark-blue); pointer-events: none; }
+        
+        .draggable { 
+            background-color: var(--container-bg); border: 1px solid #ccc; 
+            padding: 10px; margin-bottom: 8px; border-radius: 5px; cursor: grab; 
+            display: inline-block; margin-right: 5px; 
+            /* Fixes for Touch */
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+            z-index: 10;
+        }
         .draggable.dragging { opacity: 0.5; border: 2px dashed var(--primary-blue); }
         #items-to-sort { margin-top: 20px; padding: 10px; background: var(--tab-bg); border-radius: 8px; min-height: 60px; }
+        .drag-explanation { font-size: 0.85em; color: #555; margin-top: 5px; padding-top: 5px; border-top: 1px dashed #ccc; }
+        body.dark-mode .drag-explanation { color: #bbb; }
 
-        /* Flashcards - CORREGIDO (Horizontal) */
+        /* Flashcards */
         .flashcard-app { display: flex; flex-direction: column; align-items: center; }
         .flashcard-container { width: 90%; max-width: 500px; height: 300px; perspective: 1000px; margin-bottom: 20px; }
         .flashcard { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-radius: 10px; }
@@ -224,14 +229,8 @@
             backface-visibility: hidden; 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             text-align: center; 
-            padding: 20px; 
-            border-radius: 10px; 
-            box-sizing: border-box; 
-            /* TEXTO NORMAL (NO VERTICAL) */
-            font-size: 1.4em;
-            line-height: 1.4;
-            white-space: normal;
-            overflow: hidden;
+            padding: 20px; border-radius: 10px; box-sizing: border-box; 
+            font-size: 1.4em; line-height: 1.4; white-space: normal; overflow: hidden;
         }
         
         .card-front { background: var(--container-bg); border: 2px solid var(--primary-blue); color: var(--text-color); }
@@ -262,7 +261,7 @@
     <div class="container">
         <header>
             <div class="header-controls">
-                <button class="control-button" onclick="toggleLang()" id="btn-lang">EN / ES</button>
+                <button class="control-button" onclick="toggleLang()">EN / ES</button>
                 <button class="control-button" onclick="toggleTheme()">☀️/🌙</button>
             </div>
             <h1 data-lang-key="header_title">Si Clauses + Commands</h1>
@@ -296,11 +295,6 @@
                     </div>
                 </div>
 
-                <h3 style="margin-top: 30px;" data-lang-key="video_title">Video Tutorial</h3>
-                <div class="video-container">
-                    <iframe src="https://drive.google.com/file/d/1voQ1bwByvhucuyRyR5sUbfHmFhZO5XZ0/preview" allow="autoplay"></iframe>
-                </div>
-
                 <h3 style="margin-top: 30px;" data-lang-key="viz_title">Interactive Formula</h3>
                 <div class="formula-visualizer">
                     <p data-lang-key="viz_desc">Click the condition to see the command.</p>
@@ -332,6 +326,25 @@
                     </div>
                 </div>
 
+                <div class="comparison-grid">
+                    <div class="tense-box" style="border-top: 4px solid var(--green);">
+                        <h3>1. The Clause (Si + Present)</h3>
+                        <p>Use the <strong>Present Indicative</strong>.</p>
+                        <ul style="text-align:left;">
+                            <li>Si <strong>tienes</strong> tiempo...</li>
+                            <li>Si <strong>vas</strong> al cine...</li>
+                        </ul>
+                    </div>
+                    <div class="tense-box" style="border-top: 4px solid var(--primary-blue);">
+                        <h3>2. The Command (Imperative)</h3>
+                        <p>Use the <strong>Imperative (Mandato)</strong>.</p>
+                        <ul style="text-align:left;">
+                            <li>...<strong>llámame</strong>.</li>
+                            <li>...<strong>compra</strong> palomitas.</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <h3>Key Irregular Commands (Tú)</h3>
                 <p>Memorize these short forms (Vin Diesel has ten weapons):</p>
                 <table>
@@ -355,14 +368,13 @@
                     <label>Filter:</label>
                     <select id="cmdVerbSelect">
                         <option value="all">All Verbs</option>
-                        </select>
+                    </select>
                 </div>
 
-                <div id="cmdBankContainer">
-                    </div>
+                <div id="cmdBankContainer"></div>
             </div>
 
-            <div id="explain-modal">
+            <div id="explain-modal" onclick="if(event.target === this) closeModal()">
                 <div class="modal-content">
                     <span class="modal-close" onclick="closeModal()">&times;</span>
                     <h2 id="modal-title">Verb Title</h2>
@@ -370,14 +382,14 @@
                     
                     <div class="explain-block" style="border-left: 4px solid var(--green); padding-left:10px; margin-bottom:15px;">
                         <h4>✅ Affirmative Command (Tú)</h4>
-                        <p class="explain-label">Form: <span id="modal-aff-form" style="color:black; font-size:1.2em; font-weight:bold;">-</span></p>
+                        <p class="explain-label">Form: <span id="modal-aff-form" style="color:var(--text-color); font-size:1.2em; font-weight:bold;">-</span></p>
                         <p class="explain-label">Translation: <span id="modal-aff-trans" style="font-weight:normal;">-</span></p>
                         <span class="explain-ex" id="modal-aff-ex">-</span>
                     </div>
                     
                     <div class="explain-block" style="border-left: 4px solid var(--red); padding-left:10px;">
                         <h4>❌ Negative Command (Tú)</h4>
-                        <p class="explain-label">Form: <span id="modal-neg-form" style="color:black; font-size:1.2em; font-weight:bold;">-</span></p>
+                        <p class="explain-label">Form: <span id="modal-neg-form" style="color:var(--text-color); font-size:1.2em; font-weight:bold;">-</span></p>
                         <p class="explain-label">Translation: <span id="modal-neg-trans" style="font-weight:normal;">-</span></p>
                         <span class="explain-ex" id="modal-neg-ex">-</span>
                     </div>
@@ -513,13 +525,13 @@ const uiData = {
         bank_title: "Banco de Mandatos",
         bank_desc: "Referencia de mandatos regulares e irregulares.",
         practice_main_title: "Práctica Interactiva",
-        quiz_title: "Part 1: Quiz Rápido",
+        quiz_title: "Parte 1: Quiz Rápido",
         btn_new: "Nuevo Quiz",
         quiz_note: "Nota: El audio lee infinitivos para no revelar la respuesta.",
-        story_title: "Part 2: Historia de Consejos",
+        story_title: "Parte 2: Historia de Consejos",
         btn_new_story: "Nueva Historia",
         btn_check: "Verificar Historia",
-        drag_title: "Part 3: Parejas Lógicas",
+        drag_title: "Parte 3: Parejas Lógicas",
         btn_new_match: "Nuevo Juego",
         drag_desc: "Une la Condición (Verde) con el Mandato lógico (Azul).",
         btn_check_match: "Verificar Parejas",
@@ -531,26 +543,21 @@ const uiData = {
 
 let currentLang = 'en';
 
-// --- COMMAND DATABASE (With orthographic changes included for automatic negative commands) ---
+// --- COMMAND DATABASE ---
 const commandDatabase = [
-    { verb: "hablar", tag: "Regular -AR", auto: true, trans: "To speak", ex_aff: "¡Habla más alto!", ex_neg: "¡No hables en clase!", trans_aff: "Speak louder!", trans_neg: "Don't speak in class!" },
-    { verb: "comer", tag: "Regular -ER", auto: true, trans: "To eat", ex_aff: "¡Come tus verduras!", ex_neg: "¡No comas eso!", trans_aff: "Eat your vegetables!", trans_neg: "Don't eat that!" },
-    { verb: "vivir", tag: "Regular -IR", auto: true, trans: "To live", ex_aff: "¡Vive la vida!", ex_neg: "¡No vivas con miedo!", trans_aff: "Live life!", trans_neg: "Don't live in fear!" },
-    { verb: "escuchar", tag: "Regular -AR", auto: true, trans: "To listen", ex_aff: "¡Escucha al profesor!", ex_neg: "¡No escuches música ahora!", trans_aff: "Listen to the teacher!", trans_neg: "Don't listen to music now!" },
-    // Irregulars
-    { verb: "venir", tag: "Irregular", auto: false, forms: ["ven", "no vengas", "venga", "vengan", "vengamos"], trans: "To come", ex_aff: "¡Ven aquí!", ex_neg: "¡No vengas tarde!", trans_aff: "Come here!", trans_neg: "Don't come late!" },
-    { verb: "decir", tag: "Irregular", auto: false, forms: ["di", "no digas", "diga", "digan", "digamos"], trans: "To say/tell", ex_aff: "¡Di la verdad!", ex_neg: "¡No digas mentiras!", trans_aff: "Tell the truth!", trans_neg: "Don't tell lies!" },
-    { verb: "salir", tag: "Irregular", auto: false, forms: ["sal", "no salgas", "salga", "salgan", "salgamos"], trans: "To leave/go out", ex_aff: "¡Sal de ahí!", ex_neg: "¡No salgas sin chaqueta!", trans_aff: "Get out of there!", trans_neg: "Don't go out without a jacket!" },
-    { verb: "hacer", tag: "Irregular", auto: false, forms: ["haz", "no hagas", "haga", "hagan", "hagamos"], trans: "To do/make", ex_aff: "¡Haz tu tarea!", ex_neg: "¡No hagas ruido!", trans_aff: "Do your homework!", trans_neg: "Don't make noise!" },
-    { verb: "tener", tag: "Irregular", auto: false, forms: ["ten", "no tengas", "tenga", "tengan", "tengamos"], trans: "To have", ex_aff: "¡Ten paciencia!", ex_neg: "¡No tengas miedo!", trans_aff: "Have patience!", trans_neg: "Don't be afraid!" },
-    { verb: "ir", tag: "Irregular", auto: false, forms: ["ve", "no vayas", "vaya", "vayan", "vayamos"], trans: "To go", ex_aff: "¡Ve a la escuela!", ex_neg: "¡No vayas solo!", trans_aff: "Go to school!", trans_neg: "Don't go alone!" },
-    { verb: "poner", tag: "Irregular", auto: false, forms: ["pon", "no pongas", "ponga", "pongamos"], trans: "To put", ex_aff: "¡Pon la mesa!", ex_neg: "¡No pongas los pies ahí!", trans_aff: "Set the table!", trans_neg: "Don't put your feet there!" },
-    { verb: "ser", tag: "Irregular", auto: false, forms: ["sé", "no seas", "sea", "sean", "seamos"], trans: "To be", ex_aff: "¡Sé amable!", ex_neg: "¡No seas grosero!", trans_aff: "Be kind!", trans_neg: "Don't be rude!" },
-    // Orthographic
-    { verb: "tocar", tag: "Orthographic (-car)", auto: false, forms: ["toca", "no toques", "toque", "toquen", "toquemos"], trans: "To touch", ex_aff: "¡Toca la puerta!", ex_neg: "¡No toques eso!", trans_aff: "Touch the door!", trans_neg: "Don't touch that!" },
-    { verb: "llegar", tag: "Orthographic (-gar)", auto: false, forms: ["llega", "no llegues", "llegue", "lleguen", "lleguemos"], trans: "To arrive", ex_aff: "¡Llega temprano!", ex_neg: "¡No llegues tarde!", trans_aff: "Arrive early!", trans_neg: "Don't arrive late!" },
-    { verb: "empezar", tag: "Orthographic (-zar)", auto: false, forms: ["empieza", "no empieces", "empiece", "empiecen", "empecemos"], trans: "To start", ex_aff: "¡Empieza ahora!", ex_neg: "¡No empieces la película!", trans_aff: "Start now!", trans_neg: "Don't start the movie!" },
-    { verb: "empacar", tag: "Orthographic (-car)", auto: false, forms: ["empaca", "no empaques", "empaque", "empaquen", "empaquemos"], trans: "To pack", ex_aff: "¡Empaca tu maleta!", ex_neg: "¡No empaques todo eso!", trans_aff: "Pack your suitcase!", trans_neg: "Don't pack all that!" }
+    { verb: "hablar", tag: "Regular -AR", auto: true, trans: "To speak", ex_aff: "¡Habla más alto!", ex_neg: "¡No hables en clase!" },
+    { verb: "comer", tag: "Regular -ER", auto: true, trans: "To eat", ex_aff: "¡Come tus verduras!", ex_neg: "¡No comas eso!" },
+    { verb: "vivir", tag: "Regular -IR", auto: true, trans: "To live", ex_aff: "¡Vive la vida!", ex_neg: "¡No vivas con miedo!" },
+    { verb: "escuchar", tag: "Regular -AR", auto: true, trans: "To listen", ex_aff: "¡Escucha al profesor!", ex_neg: "¡No escuches música ahora!" },
+    { verb: "venir", tag: "Irregular", auto: false, forms: ["ven", "no vengas", "venga", "vengan", "vengamos"], trans: "To come", ex_aff: "¡Ven aquí!", ex_neg: "¡No vengas tarde!" },
+    { verb: "decir", tag: "Irregular", auto: false, forms: ["di", "no digas", "diga", "digan", "digamos"], trans: "To say/tell", ex_aff: "¡Di la verdad!", ex_neg: "¡No digas mentiras!" },
+    { verb: "salir", tag: "Irregular", auto: false, forms: ["sal", "no salgas", "salga", "salgan", "salgamos"], trans: "To leave/go out", ex_aff: "¡Sal de ahí!", ex_neg: "¡No salgas sin chaqueta!" },
+    { verb: "hacer", tag: "Irregular", auto: false, forms: ["haz", "no hagas", "haga", "hagan", "hagamos"], trans: "To do/make", ex_aff: "¡Haz tu tarea!", ex_neg: "¡No hagas ruido!" },
+    { verb: "tener", tag: "Irregular", auto: false, forms: ["ten", "no tengas", "tenga", "tengan", "tengamos"], trans: "To have", ex_aff: "¡Ten paciencia!", ex_neg: "¡No tengas miedo!" },
+    { verb: "ir", tag: "Irregular", auto: false, forms: ["ve", "no vayas", "vaya", "vayan", "vayamos"], trans: "To go", ex_aff: "¡Ve a la escuela!", ex_neg: "¡No vayas solo!" },
+    { verb: "poner", tag: "Irregular", auto: false, forms: ["pon", "no pongas", "ponga", "pongan", "pongamos"], trans: "To put", ex_aff: "¡Pon la mesa!", ex_neg: "¡No pongas los pies ahí!" },
+    { verb: "ser", tag: "Irregular", auto: false, forms: ["sé", "no seas", "sea", "sean", "seamos"], trans: "To be", ex_aff: "¡Sé amable!", ex_neg: "¡No seas grosero!" },
+    { verb: "empacar", tag: "Orthographic (-car)", auto: false, forms: ["empaca", "no empaques", "empaque", "empaquen", "empaquemos"], trans: "To pack", ex_aff: "¡Empaca tu maleta!", ex_neg: "¡No empaques todo eso!" }
 ];
 
 // 20 Flashcards
@@ -724,8 +731,6 @@ const dragDropBank = [
 // --- LOGIC ---
 
 document.addEventListener('DOMContentLoaded', () => {
-    let currentStoryData = {};
-
     // 1. TABS
     window.changeMainTab = function(evt, tabId) {
         document.querySelectorAll('.main-tab-content').forEach(el => el.classList.remove('is-active'));
@@ -759,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedQuestions.forEach((q, i) => {
             const qId = `q_${i}`;
             // Clean audio text
-            const cleanQ = q.q.replace(/[()]/g, "").replace(/ /g, ', ');
+            const cleanQ = q.q.replace(/[()]/g, "");
             const tts = `<span class="tts-icon" onclick="speak('${cleanQ}')">🔊</span>`;
             
             let html = `<div class="quiz-question" id="${qId}">
@@ -793,9 +798,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('check-story-btn').addEventListener('click', checkStory);
 
     function generateStory() {
-        currentStoryData = storyBank[Math.floor(Math.random() * storyBank.length)];
+        const currentStoryData = storyBank[Math.floor(Math.random() * storyBank.length)];
         document.getElementById('story-container').innerHTML = currentStoryData.html;
-        document.querySelectorAll('.story-explanation').forEach(e=>e.remove());
     }
 
     function checkStory() {
@@ -811,31 +815,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. DRAG & DROP
+    // 5. DRAG & DROP (iPad Optimized)
     const dragPool = document.getElementById('drag-items-pool');
     document.getElementById('generate-drag').addEventListener('click', generateDragDrop);
     document.getElementById('check-drag-btn').addEventListener('click', checkDrag);
     
-    let currentDragItems = [];
-
     function generateDragDrop() {
         dragPool.innerHTML = '';
         document.getElementById('drag-feedback').textContent = '';
         document.querySelectorAll('.dropzone .draggable').forEach(e => e.remove());
-        document.querySelectorAll('.drag-explanation').forEach(e => e.remove());
-
-        // Pick 6 random pairs (12 items total)
-        const uniquePairs = new Map();
-        while (uniquePairs.size < 6) { 
-            const randomIndex = Math.floor(Math.random() * (dragDropBank.length / 2)) * 2;
-            const condition = dragDropBank[randomIndex];
-            const command = dragDropBank[randomIndex + 1];
-            if (condition && command) {
-                uniquePairs.set(condition.text, condition);
-                uniquePairs.set(command.text, command);
-            }
-        }
-        currentDragItems = Array.from(uniquePairs.values()).sort(() => 0.5 - Math.random());
+        
+        const currentDragItems = [...dragDropBank].sort(() => 0.5 - Math.random()).slice(0, 8);
         
         currentDragItems.forEach(item => {
             const el = document.createElement('div');
@@ -845,8 +835,13 @@ document.addEventListener('DOMContentLoaded', () => {
             el.innerHTML = `${item.text} ${ttsHtml}`;
             el.dataset.type = item.type;
             
-            el.addEventListener('dragstart', e => e.target.classList.add('dragging'));
+            // Mouse
+            el.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('type', item.type);
+                e.target.classList.add('dragging');
+            });
             el.addEventListener('dragend', e => e.target.classList.remove('dragging'));
+            // Touch (iPad)
             el.addEventListener('touchstart', touchStart, {passive: false});
             
             dragPool.appendChild(el);
@@ -865,83 +860,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dragging = document.querySelector('.dragging');
                 if(dragging) zone.appendChild(dragging);
             });
-            zone.addEventListener('touchenter', () => zone.classList.add('drag-over'), false);
-            zone.addEventListener('touchleave', () => zone.classList.remove('drag-over'), false);
         });
     }
 
-    // Touch Logic
+    // Touch Logic (Ghost Method for iPad)
     let tDrag = null;
     function touchStart(e) {
         if(e.target.classList.contains('tts-icon')) return;
-        let originalTarget = e.target.closest('.draggable');
-        if(!originalTarget) return;
-        
-        // Prepare for dragging
-        const rect = originalTarget.getBoundingClientRect();
-        const clone = originalTarget.cloneNode(true);
-        originalTarget.style.opacity = '0.0'; // Hide original
-        
-        clone.style.position = 'fixed';
-        clone.style.zIndex = 1000;
-        clone.style.width = rect.width + 'px';
-        clone.style.height = rect.height + 'px';
-        clone.style.left = rect.left + 'px';
-        clone.style.top = rect.top + 'px';
-        clone.classList.add('dragging');
-        clone.id = 'touch-drag-clone';
-        document.body.appendChild(clone);
-        
-        tDrag = { original: originalTarget, clone: clone };
-
+        tDrag = e.target.closest('.draggable');
+        if(!tDrag) return;
+        e.preventDefault();
+        tDrag.classList.add('dragging');
         document.addEventListener('touchmove', touchMove, {passive: false});
         document.addEventListener('touchend', touchEnd);
     }
-    
     function touchMove(e) {
-        if(!tDrag || !tDrag.clone) return;
+        if(!tDrag) return;
         e.preventDefault();
         const t = e.touches[0];
-        tDrag.clone.style.left = (t.clientX - tDrag.clone.offsetWidth/2) + 'px';
-        tDrag.clone.style.top = (t.clientY - tDrag.clone.offsetHeight/2) + 'px';
-        
-        // Highlight dropzones
-        document.querySelectorAll('.dropzone').forEach(zone => zone.classList.remove('drag-over'));
-        const elem = document.elementFromPoint(t.clientX, t.clientY);
-        const zone = elem ? elem.closest('.dropzone') : null;
-        if(zone) zone.classList.add('drag-over');
+        tDrag.style.position = 'fixed';
+        tDrag.style.zIndex = 1000;
+        tDrag.style.left = (t.clientX - tDrag.offsetWidth/2) + 'px';
+        tDrag.style.top = (t.clientY - tDrag.offsetHeight/2) + 'px';
     }
-    
     function touchEnd(e) {
         if(!tDrag) return;
-
         const t = e.changedTouches[0];
-        const elem = document.elementFromPoint(t.clientX, t.clientY);
-        const zone = elem ? elem.closest('.dropzone') : null;
+        tDrag.style.position = ''; tDrag.style.zIndex = ''; tDrag.style.left = ''; tDrag.style.top = '';
+        tDrag.classList.remove('dragging');
         
-        if(zone) {
-            // Move original to new zone
-            tDrag.original.style.opacity = '1';
-            zone.appendChild(tDrag.original);
-        } else {
-            // Move original back to pool if not dropped in a zone
-            tDrag.original.style.opacity = '1';
-            dragPool.appendChild(tDrag.original);
-        }
-
-        // Cleanup clone
-        tDrag.clone.remove();
+        // Magic fix: hide element to find what's under it
+        tDrag.style.display = 'none';
+        const elem = document.elementFromPoint(t.clientX, t.clientY);
+        tDrag.style.display = 'inline-block';
+        
+        const zone = elem ? elem.closest('.dropzone') : null;
+        if(zone) zone.appendChild(tDrag);
         
         document.removeEventListener('touchmove', touchMove);
         document.removeEventListener('touchend', touchEnd);
-        document.querySelectorAll('.dropzone').forEach(zone => zone.classList.remove('drag-over'));
         tDrag = null;
     }
 
-
     function checkDrag() {
         let correct = 0;
-        let totalItems = 0;
         const zones = {
             'zone-condition': 'condition',
             'zone-command': 'command'
@@ -950,7 +912,6 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const [zoneId, type] of Object.entries(zones)) {
             const zone = document.getElementById(zoneId);
             zone.querySelectorAll('.draggable').forEach(item => {
-                totalItems++;
                 if(item.dataset.type === type) {
                     item.style.backgroundColor = '#d4edda'; correct++;
                 } else {
@@ -958,82 +919,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-        document.getElementById('drag-feedback').textContent = `Correct: ${correct} out of ${totalItems}.`;
+        document.getElementById('drag-feedback').textContent = `Correct: ${correct}`;
     }
-
-    // 6. FLASHCARDS
-    let cIdx = 0;
-    function loadCard() {
-        const d = flashcardData[cIdx];
-        const tts = `&nbsp;<span class="tts-icon" onclick="speak('${d.es.replace(/<[^>]*>?/gm, '')}')">🔊</span>`;
-        document.getElementById('card-front').innerHTML = d.en;
-        document.getElementById('card-back').innerHTML = `${d.es} ${tts}<p>${d.explanation}</p>`;
-        document.getElementById('flashcard').classList.remove('is-flipped');
-    }
-    window.flipCard = () => document.getElementById('flashcard').classList.toggle('is-flipped');
-    window.nextCard = () => { cIdx = (cIdx+1)%flashcardData.length; loadCard(); };
-    window.prevCard = () => { cIdx = (cIdx-1+flashcardData.length)%flashcardData.length; loadCard(); };
-    
-    document.getElementById('flashcard').addEventListener('click', function(e) {
-        if(e.target.classList.contains('tts-icon')) {
-            e.stopPropagation();
-        } else {
-            flipCard();
-        }
-    });
 
     // 7. COMMAND BANK GENERATOR
     function conjugateCmdRegular(verb) {
         const stem = verb.slice(0, -2);
         const end = verb.slice(-2);
-        // Forms: Tú(+), Tú(-), Ud, Uds, Nos
-        let tuNeg = "";
-        
-        if (end === "ar") {
-            tuNeg = stem+"es";
-        } else if (end === "er" || end === "ir") {
-            tuNeg = stem+"as";
-        }
-        
-        // Orthographic changes (just for regular conjugation logic)
-        if (verb.endsWith("car")) { tuNeg = tuNeg.replace("ces", "ques"); } // -car
-        if (verb.endsWith("gar")) { tuNeg = tuNeg.replace("ges", "gues"); } // -gar
-        if (verb.endsWith("zar")) { tuNeg = tuNeg.replace("zas", "ces"); } // -zar (e.g. empezar -> empieces)
-
-        if (end === "ar") return [stem+"a", "no "+tuNeg, stem+"e", stem+"en", stem+"emos"];
-        if (end === "er") return [stem+"e", "no "+tuNeg, stem+"a", stem+"an", stem+"amos"];
-        if (end === "ir") return [stem+"e", "no "+tuNeg, stem+"a", stem+"an", stem+"amos"]; 
+        if (end === "ar") return [stem+"a", "no "+stem+"es", stem+"e", stem+"en", stem+"emos"];
+        if (end === "er") return [stem+"e", "no "+stem+"as", stem+"a", stem+"an", stem+"amos"];
+        if (end === "ir") return [stem+"e", "no "+stem+"as", stem+"a", stem+"an", stem+"amos"]; 
         return ["-","-","-","-","-"];
     }
     
-    // CORRECCIÓN CLAVE: Función showExplanation actualizada
-    // Ahora recibe el índice del array y toma el objeto directamente.
-    window.showExplanation = function(index) {
-        const verbData = commandDatabase[index];
-        if (!verbData) return;
-
+    // Show Explanation Modal
+    window.showExplanation = function(verbDataStr) {
+        const verbData = JSON.parse(decodeURIComponent(verbDataStr));
         const modal = document.getElementById('explain-modal');
         
-        // Traducciones específicas
-        const trans_aff = verbData.trans_aff || "Do it!";
-        const trans_neg = verbData.trans_neg || "Don't do it!";
-        const trans_infinitive = verbData.trans || "To do the action";
-
-        // Ejemplos por defecto si no se proporcionan
-        const affForm = verbData.forms[0] || '';
-        const negForm = verbData.forms[1] || '';
-        const ex_aff = verbData.ex_aff || `¡${affForm.charAt(0).toUpperCase() + affForm.slice(1)} ahora!`;
-        const ex_neg = verbData.ex_neg || `¡${negForm.charAt(0).toUpperCase() + negForm.slice(1)} eso!`;
+        const ex_aff = verbData.ex_aff || `¡${verbData.forms[0].toUpperCase()} ahora!`;
+        const ex_neg = verbData.ex_neg || `¡${verbData.forms[1].toUpperCase()} eso!`;
+        const trans = verbData.trans || "To do the action";
 
         document.getElementById('modal-title').textContent = verbData.verb.charAt(0).toUpperCase() + verbData.verb.slice(1);
-        document.getElementById('modal-trans').textContent = trans_infinitive;
+        document.getElementById('modal-trans').textContent = trans;
         
         document.getElementById('modal-aff-form').textContent = verbData.forms[0];
-        document.getElementById('modal-aff-trans').textContent = trans_aff; // Traducción Correcta
+        document.getElementById('modal-aff-trans').textContent = "(Do it!)";
         document.getElementById('modal-aff-ex').innerHTML = `Ex: "${ex_aff}" <span class="tts-icon" onclick="speak('${ex_aff}')">🔊</span>`;
         
         document.getElementById('modal-neg-form').textContent = verbData.forms[1];
-        document.getElementById('modal-neg-trans').textContent = trans_neg; // Traducción Correcta
+        document.getElementById('modal-neg-trans').textContent = "(Don't do it!)";
         document.getElementById('modal-neg-ex').innerHTML = `Ex: "${ex_neg}" <span class="tts-icon" onclick="speak('${ex_neg}')">🔊</span>`;
         
         modal.style.display = 'flex';
@@ -1046,24 +962,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderBank() {
         const container = document.getElementById('cmdBankContainer');
         const select = document.getElementById('cmdVerbSelect');
-        if(container.innerHTML.trim() !== "") return; // Already rendered
+        if(container.innerHTML.trim() !== "") return; 
 
-        commandDatabase.forEach((item, index) => {
+        commandDatabase.forEach(item => {
             const opt = document.createElement('option');
             opt.value = item.verb; opt.textContent = item.verb;
             select.appendChild(opt);
             
-            // Normalize Forms
             if(item.auto) item.forms = conjugateCmdRegular(item.verb);
             
-            // Modificación CRUCIAL: Usamos el índice para llamar a showExplanation
+            const dataStr = encodeURIComponent(JSON.stringify(item));
+            
             const card = `
             <div class="verb-card" data-verb="${item.verb}">
                 <div class="verb-header">
                     <span class="verb-title">${item.verb}</span>
                     <div>
                         <span class="verb-tag">${item.tag}</span>
-                        <button class="btn-explain" onclick="showExplanation(${index})">💡 Explain</button>
+                        <button class="btn-explain" onclick="showExplanation('${dataStr}')">💡 Explain</button>
                     </div>
                 </div>
                 <table>
@@ -1085,6 +1001,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // 8. FLASHCARDS
+    let cIdx = 0;
+    function loadCard() {
+        const d = flashcardData[cIdx];
+        const tts = `&nbsp;<span class="tts-icon" onclick="speak('${d.es.replace(/<[^>]*>?/gm, '')}')">🔊</span>`;
+        document.getElementById('card-front').innerHTML = d.en;
+        document.getElementById('card-back').innerHTML = `${d.es} ${tts}<br><br><small>${d.explanation}</small>`;
+        document.getElementById('flashcard').classList.remove('is-flipped');
+    }
+    window.flipCard = () => document.getElementById('flashcard').classList.toggle('is-flipped');
+    window.nextCard = () => { cIdx = (cIdx+1)%flashcardData.length; loadCard(); };
+    window.prevCard = () => { cIdx = (cIdx-1+flashcardData.length)%flashcardData.length; loadCard(); };
+    
+    document.getElementById('flashcard').addEventListener('click', function(e) {
+        if(e.target.classList.contains('tts-icon')) {
+            e.stopPropagation();
+            speak(e.target.dataset.tts);
+        } else {
+            flipCard();
+        }
+    });
+
     // Utils
     window.toggleLang = function() {
         currentLang = currentLang === 'en' ? 'es' : 'en';
@@ -1096,25 +1034,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.toggleTheme = () => document.body.classList.toggle('dark-mode');
 
-    // AUDIO ENGINE (Global)
-    window.speak = function(txt) {
+    // AUDIO ENGINE
+    function speak(txt) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(txt);
         u.lang = 'es-ES';
-        
         const voices = window.speechSynthesis.getVoices();
         const v = voices.find(voice => voice.name.includes('Google') && voice.lang.includes('es')) || 
                   voices.find(voice => (voice.name.includes('Monica') || voice.name.includes('Paulina')) && voice.lang.includes('es')) ||
                   voices.find(voice => voice.lang.includes('es'));
         if(v) u.voice = v;
-        
         window.speechSynthesis.speak(u);
     }
     
-    // Global TTS listener to catch clicks on icons
+    // Global TTS listener
     document.body.addEventListener('click', function(e) {
         if(e.target.classList.contains('tts-icon') && !e.target.closest('#flashcard')) {
-            // Logic handled by inline onclick, but here for completeness
+            speak(e.target.dataset.tts);
         }
     });
 
